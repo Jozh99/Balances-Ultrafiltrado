@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora UF Leche | Anteproyecto Ultrafiltración</title>
+<meta name="description" content="Calculadora de balance de masa, diafiltración, estandarización de grasa y capacidad de equipo para anteproyectos de leche ultrafiltrada.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f3a5f">
+<style>
+  :root{
+    --azul-oscuro:#0f3a5f;
+    --azul:#155e8a;
+    --azul-claro:#e8f1f8;
+    --teal:#1f8a8c;
+    --teal-claro:#e6f5f5;
+    --gris-100:#f7f8fa;
+    --gris-200:#e9ecef;
+    --gris-400:#adb5bd;
+    --gris-700:#495057;
+    --texto:#1c2b36;
+    --ok:#1e7e34;
+    --ok-bg:#e6f4ea;
+    --warn:#8a6d1f;
+    --warn-bg:#fbf3dc;
+    --err:#a3221f;
+    --err-bg:#fbe7e6;
+    --borde:#dbe2e8;
+    --radio:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--gris-100);
+    color:var(--texto);
+    line-height:1.5;
+    padding-bottom:40px;
+  }
+  header{
+    background:linear-gradient(135deg,var(--azul-oscuro),var(--azul));
+    color:#fff;
+    padding:22px 16px 18px;
+  }
+  header .wrap{max-width:960px;margin:0 auto;}
+  header h1{margin:0 0 4px;font-size:1.35rem;font-weight:700;}
+  header p{margin:0;font-size:.85rem;color:#cfe3f2;}
+  nav.tabs{
+    max-width:960px;margin:14px auto 0;
+    display:flex;flex-wrap:wrap;gap:6px;
+    padding:0 16px;
+  }
+  nav.tabs button{
+    flex:1 1 auto;
+    min-width:120px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.25);
+    color:#eaf3fa;
+    padding:9px 10px;
+    border-radius:8px 8px 0 0;
+    font-size:.78rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  nav.tabs button:hover{background:rgba(255,255,255,.18);}
+  nav.tabs button.active{
+    background:var(--gris-100);
+    color:var(--azul-oscuro);
+    border-bottom:1px solid var(--gris-100);
+  }
+  main{max-width:960px;margin:0 auto;padding:18px 16px 0;}
+  .panel{display:none;}
+  .panel.active{display:block;animation:fade .15s ease-in;}
+  @keyframes fade{from{opacity:0;}to{opacity:1;}}
+  .card{
+    background:#fff;
+    border:1px solid var(--borde);
+    border-radius:var(--radio);
+    padding:18px 18px 20px;
+    margin-bottom:16px;
+    box-shadow:0 1px 2px rgba(15,58,95,.04);
+  }
+  .card h2{margin:0 0 10px;font-size:1.05rem;color:var(--azul-oscuro);}
+  .explic{
+    background:var(--teal-claro);
+    border:1px solid #bfe3e3;
+    border-left:4px solid var(--teal);
+    border-radius:8px;
+    padding:12px 14px;
+    font-size:.82rem;
+    color:#134c4d;
+    margin-bottom:16px;
+  }
+  .explic strong{color:#0d3a3b;}
+  .explic .formula{
+    display:block;
+    background:#fff;
+    border:1px dashed #9fd0d0;
+    border-radius:6px;
+    padding:6px 10px;
+    margin-top:6px;
+    font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:.78rem;
+    color:#0d3a3b;
+    overflow-x:auto;
+  }
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{font-size:.76rem;font-weight:600;color:var(--gris-700);}
+  .field .hint{font-size:.68rem;color:var(--gris-400);}
+  input[type=number],input[type=text],select{
+    padding:8px 10px;
+    border:1px solid var(--borde);
+    border-radius:7px;
+    font-size:.88rem;
+    background:#fbfcfd;
+    color:var(--texto);
+    width:100%;
+  }
+  input:focus,select:focus{outline:2px solid var(--teal);outline-offset:1px;}
+  fieldset{border:1px solid var(--borde);border-radius:8px;padding:12px 14px 14px;margin:0 0 14px;}
+  fieldset legend{font-size:.78rem;font-weight:700;color:var(--azul);padding:0 6px;}
+  .row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center;}
+  button.primary{
+    background:var(--azul-oscuro);
+    color:#fff;border:none;border-radius:8px;
+    padding:10px 18px;font-size:.86rem;font-weight:700;cursor:pointer;
+  }
+  button.primary:hover{background:var(--azul);}
+  button.secondary{
+    background:#fff;border:1px solid var(--azul);
+    color:var(--azul);border-radius:8px;
+    padding:9px 16px;font-size:.8rem;font-weight:600;cursor:pointer;
+  }
+  button.secondary:hover{background:var(--azul-claro);}
+  .results{margin-top:18px;}
+  table{width:100%;border-collapse:collapse;font-size:.82rem;}
+  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid var(--gris-200);}
+  th{background:var(--gris-100);color:var(--gris-700);font-size:.72rem;text-transform:uppercase;letter-spacing:.02em;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .badge{
+    display:inline-block;padding:2px 9px;border-radius:99px;font-size:.7rem;font-weight:700;
+  }
+  .badge.ok{background:var(--ok-bg);color:var(--ok);}
+  .badge.warn{background:var(--warn-bg);color:var(--warn);}
+  .badge.err{background:var(--err-bg);color:var(--err);}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;}
+  .kpi{background:var(--azul-claro);border-radius:8px;padding:10px 12px;}
+  .kpi .v{font-size:1.25rem;font-weight:800;color:var(--azul-oscuro);}
+  .kpi .l{font-size:.7rem;color:var(--gris-700);text-transform:uppercase;letter-spacing:.02em;}
+  .note{font-size:.74rem;color:var(--gris-700);margin-top:10px;}
+  .flow{display:flex;align-items:center;gap:10px;font-size:.72rem;color:var(--gris-700);margin:8px 0 4px;flex-wrap:wrap;}
+  .flow b{color:var(--azul-oscuro);}
+  .flow span.arrow{color:var(--gris-400);}
+  ul.assumps{margin:6px 0 0;padding-left:18px;font-size:.8rem;}
+  ul.assumps li{margin-bottom:4px;}
+  footer{max-width:960px;margin:24px auto 0;padding:0 16px;font-size:.72rem;color:var(--gris-400);text-align:center;}
+  .link-btn{background:none;border:none;color:var(--teal);font-size:.76rem;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;}
+  @media (max-width:600px){
+    nav.tabs button{min-width:90px;font-size:.7rem;}
+    header h1{font-size:1.1rem;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Calculadora de Ultrafiltración de Leche</h1>
+    <p>Balance de masa · Diafiltración · Estandarización de grasa · Capacidad de equipo — Anteproyecto leche UF alta proteína / sin lactosa</p>
+  </div>
+  <nav class="tabs">
+    <button data-tab="t1" class="active">1. Balance de masa</button>
+    <button data-tab="t2">2. Diafiltración</button>
+    <button data-tab="t3">3. Grasa de alimentación</button>
+    <button data-tab="t4">4. Capacidad del equipo</button>
+    <button data-tab="t5">Supuestos y fórmulas</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ===================== TAB 1: BALANCE DE MASA ===================== -->
+  <section id="t1" class="panel active">
+    <div class="card">
+      <h2>Balance de masa de concentración (UF)</h2>
+      <div class="explic">
+        <strong>Qué calcula:</strong> a partir de la composición de la leche de alimentación y de un objetivo de proteína (o de un VCF fijo), determina el factor de concentración volumétrica (VCF), y la composición y flujo del concentrado (retenido) y el permeado.
+        <span class="formula">VCF = %Proteína objetivo / (R_proteína × %Proteína alimentación)
+masa_x,retenido = R_x × (%x,alim / 100) × Flujo_alim
+masa_x,permeado = masa_x,alim − masa_x,retenido</span>
+        R_x = coeficiente de retención de membrana del componente x (1 = totalmente retenido, 0 = libremente permeable). Ver pestaña "Supuestos y fórmulas".
+      </div>
+
+      <fieldset>
+        <legend>Composición de la leche de alimentación (% p/p)</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="m1_prot">Proteína (%)</label>
+            <input type="number" id="m1_prot" value="3.40" step="0.01" min="0">
+          </div>
+          <div class="field">
+            <label for="m1_grasa">Grasa (%)</label>
+            <input type="number" id="m1_grasa" value="0.63" step="0.01" min="0">
+          </div>
+          <div class="field">
+            <label for="m1_lact">Lactosa (%)</label>
+            <input type="number" id="m1_lact" value="4.90" step="0.01" min="0">
+          </div>
+          <div class="field">
+            <label for="m1_cen">Cenizas / minerales (%)</label>
+            <input type="number" id="m1_cen" value="0.75" step="0.01" min="0">
+          </div>
+        </div>
+        <div class="note" id="m1_st_agua"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Objetivo de concentración</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="m1_modo">Definir por</label>
+            <select id="m1_modo">
+              <option value="proteina" selected>% Proteína objetivo en el concentrado</option>
+              <option value="vcf">VCF fijo</option>
+            </select>
+          </div>
+          <div class="field" id="m1_campo_proteina">
+            <label for="m1_prot_obj">Proteína objetivo en concentrado (%)</label>
+            <input type="number" id="m1_prot_obj" value="5.40" step="0.01" min="0">
+          </div>
+          <div class="field" id="m1_campo_vcf" style="display:none;">
+            <label for="m1_vcf_fijo">VCF</label>
+            <input type="number" id="m1_vcf_fijo" value="1.59" step="0.01" min="1">
+          </div>
+          <div class="field">
+            <label for="m1_flujo">Flujo de alimentación (kg/h)</label>
+            <input type="number" id="m1_flujo" value="20000" step="100" min="0">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Coeficientes de retención de membrana (avanzado)</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="m1_Rp">R proteína</label>
+            <input type="number" id="m1_Rp" value="1.00" step="0.01" min="0" max="1">
+          </div>
+          <div class="field">
+            <label for="m1_Rg">R grasa</label>
+            <input type="number" id="m1_Rg" value="1.00" step="0.01" min="0" max="1">
+          </div>
+          <div class="field">
+            <label for="m1_Rl">R lactosa</label>
+            <input type="number" id="m1_Rl" value="0.00" step="0.01" min="0" max="1">
+          </div>
+          <div class="field">
+            <label for="m1_Ra">R cenizas (Ca ligado a caseína)</label>
+            <input type="number" id="m1_Ra" value="0.35" step="0.01" min="0" max="1">
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="row-actions">
+        <button class="primary" onclick="calcularModulo1()">Calcular</button>
+        <button class="secondary" onclick="usarEnDiafiltracion()">Usar resultado en Diafiltración →</button>
+        <button class="secondary" onclick="usarEnGrasa()">Usar VCF en Estandarización de grasa →</button>
+        <button class="secondary" onclick="usarEnCapacidad('m1')">Usar flujos en Capacidad →</button>
+      </div>
+
+      <div class="results" id="m1_resultados"></div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 2: DIAFILTRACIÓN ===================== -->
+  <section id="t2" class="panel">
+    <div class="card">
+      <h2>Diafiltración (reducción de lactosa)</h2>
+      <div class="explic">
+        <strong>Qué calcula:</strong> la concentración simple no reduce el % de lactosa (permea libremente y mantiene su proporción). Para bajar la lactosa por debajo de la de la leche original hay que diluir con agua/permeado durante la concentración (diafiltración de volumen constante).
+        <span class="formula">N = ln(%Lactosa inicial / %Lactosa objetivo) / (1 − R_lactosa)
+Agua de dilución = N × Masa del retenido
+%Cenizas final = %Cenizas inicial × e^(−N × (1 − R_cenizas))</span>
+      </div>
+
+      <fieldset>
+        <legend>Retenido de entrada a diafiltración</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="m2_masa">Masa del retenido (kg/h)</label>
+            <input type="number" id="m2_masa" value="12596" step="10" min="0">
+          </div>
+          <div class="field">
+            <label for="m2_lact">Lactosa en el retenido (%)</label>
+            <input type="number" id="m2_lact" value="4.90" step="0.01" min="0">
+          </div>
+          <div class="field">
+            <label for="m2_cen">Cenizas en el retenido (%)</label>
+            <input type="number" id="m2_cen" value="0.75" step="0.01" min="0">
+          </div>
+          <div class="field">
+            <label for="m2_Ra">R cenizas</label>
+            <input type="number" id="m2_Ra" value="0.35" step="0.01" min="0" max="1">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Objetivo</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="m2_lact_obj">Lactosa objetivo en producto (%)</label>
+            <input type="number" id="m2_lact_obj" value="3.30" step="0.01" min="0">
+            <span class="hint">Ajusta por la ganancia de masa de la hidrólisis enzimática si el target viene de una etiqueta de carbohidratos post-lactasa (factor ≈ ÷1.053).</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="row-actions">
+        <button class="primary" onclick="calcularModulo2()">Calcular</button>
+        <button class="secondary" onclick="usarEnCapacidad('m2')">Usar permeado total en Capacidad →</button>
+      </div>
+
+      <div class="results" id="m2_resultados"></div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 3: ESTANDARIZACIÓN DE GRASA ===================== -->
+  <section id="t3" class="panel">
+    <div class="card">
+      <h2>Estandarización de grasa de la leche de alimentación</h2>
+      <div class="explic">
+        <strong>Qué calcula:</strong> como la grasa se concentra con el mismo VCF que la proteína (ambas retenidas por la membrana), para lograr un % de grasa objetivo en el producto final hay que estandarizar la grasa de la leche de entrada — no sirve partir de leche descremada si el producto debe llevar grasa.
+        <span class="formula">%Grasa alimentación requerida = %Grasa objetivo en concentrado / (R_grasa × VCF)
+%Grasa resultante en concentrado = R_grasa × %Grasa alimentación × VCF</span>
+      </div>
+
+      <fieldset>
+        <legend>Datos</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="m3_vcf">VCF del proceso</label>
+            <input type="number" id="m3_vcf" value="1.59" step="0.01" min="1">
+          </div>
+          <div class="field">
+            <label for="m3_Rg">R grasa</label>
+            <input type="number" id="m3_Rg" value="1.00" step="0.01" min="0" max="1">
+          </div>
+          <div class="field">
+            <label for="m3_modo">Calcular</label>
+            <select id="m3_modo">
+              <option value="requerida" selected>Grasa requerida en alimentación (dado el objetivo)</option>
+              <option value="resultante">Grasa resultante en concentrado (dada la alimentación disponible)</option>
+            </select>
+          </div>
+          <div class="field" id="m3_campo_objetivo">
+            <label for="m3_grasa_obj">Grasa objetivo en concentrado (%)</label>
+            <input type="number" id="m3_grasa_obj" value="1.00" step="0.01" min="0">
+          </div>
+          <div class="field" id="m3_campo_disponible" style="display:none;">
+            <label for="m3_grasa_disp">Grasa disponible en leche de planta (%)</label>
+            <input type="number" id="m3_grasa_disp" value="0.63" step="0.01" min="0">
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="row-actions">
+        <button class="primary" onclick="calcularModulo3()">Calcular</button>
+      </div>
+
+      <div class="results" id="m3_resultados"></div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 4: CAPACIDAD DEL EQUIPO ===================== -->
+  <section id="t4" class="panel">
+    <div class="card">
+      <h2>Verificación de capacidad — Sistema UF MSS #180202</h2>
+      <div class="explic">
+        <strong>Qué calcula:</strong> convierte los flujos del proceso (kg/h) a gpm y los compara contra los límites de diseño del ultrafiltrador (bombas, puntos de ajuste protegidos) para detectar si el escenario calculado excede la capacidad instalada.
+        <span class="formula">L/h = kg/h ÷ densidad (kg/L)
+gpm = (L/h ÷ 3.78541) ÷ 60</span>
+        Límites por defecto tomados del SOP del equipo (Manual del Operador, Proyecto #180202) — edítalos si el equipo cambia.
+      </div>
+
+      <div class="explic" style="background:var(--warn-bg);border-color:#e9d38a;border-left-color:var(--warn);color:#5c4813;">
+        <strong>⚠ Verificar antes de usar estos límites como definitivos:</strong> el balance de masa del diseño original de suero (ficha técnica MSS #180202) reporta un flujo de permeado de 16,125&nbsp;kg/h, equivalente a ≈70&nbsp;gpm — por arriba del máximo de 50&nbsp;gpm documentado en la tabla de puntos de ajuste ("Permeate Flow Rate", entrada FT2420). Es posible que ese punto de ajuste corresponda a una sola etapa o a un lazo de control específico y no al caudal total del sistema. Confirma con el P&amp;ID físico o directamente con MSS a qué medidor/etapa corresponde cada límite antes de usarlo para decisiones de diseño definitivas.
+      </div>
+
+      <fieldset>
+        <legend>Flujos del proceso</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="m4_feed">Flujo de alimentación (kg/h)</label>
+            <input type="number" id="m4_feed" value="20000" step="100" min="0">
+          </div>
+          <div class="field">
+            <label for="m4_rho_feed">Densidad alimentación (kg/L)</label>
+            <input type="number" id="m4_rho_feed" value="1.033" step="0.001" min="0.9">
+          </div>
+          <div class="field">
+            <label for="m4_perm">Flujo de permeado total (kg/h)</label>
+            <input type="number" id="m4_perm" value="12379" step="100" min="0">
+          </div>
+          <div class="field">
+            <label for="m4_rho_perm">Densidad permeado (kg/L)</label>
+            <input type="number" id="m4_rho_perm" value="1.005" step="0.001" min="0.9">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Límites de diseño del equipo (editable)</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="m4_feed_min">Alimentación mín. (gpm)</label>
+            <input type="number" id="m4_feed_min" value="120" step="1">
+            <span class="hint">SOP: "Feed Flow Rate" (FT2420) — probablemente el flujo de la bomba P2420 hacia el loop de recirculación, no necesariamente el throughput crudo de materia prima.</span>
+          </div>
+          <div class="field">
+            <label for="m4_feed_max">Alimentación máx. (gpm)</label>
+            <input type="number" id="m4_feed_max" value="300" step="1">
+          </div>
+          <div class="field">
+            <label for="m4_perm_min">Permeado mín. (gpm)</label>
+            <input type="number" id="m4_perm_min" value="12" step="1">
+            <span class="hint">SOP: "Permeate Flow Rate" — ver advertencia arriba sobre a qué medidor/etapa corresponde.</span>
+          </div>
+          <div class="field">
+            <label for="m4_perm_max">Permeado máx. (gpm)</label>
+            <input type="number" id="m4_perm_max" value="50" step="1">
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="row-actions">
+        <button class="primary" onclick="calcularModulo4()">Verificar capacidad</button>
+      </div>
+
+      <div class="results" id="m4_resultados"></div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 5: SUPUESTOS Y FÓRMULAS ===================== -->
+  <section id="t5" class="panel">
+    <div class="card">
+      <h2>Supuestos, alcance y fórmulas generales</h2>
+      <p style="font-size:.85rem;">Esta calculadora apoya el anteproyecto de leche ultrafiltrada alta proteína / sin lactosa a desarrollar en el sistema UF existente (MSS Project #180202, originalmente diseñado para suero dulce pasteurizado, 2 etapas, 8 recipientes, 32 elementos Toray 7838 NWCO 10K, ~10,560 ft² de área). Los cálculos son de nivel de anteproyecto (preliminares) y no sustituyen una corrida piloto.</p>
+
+      <fieldset>
+        <legend>Modelo de retención usado</legend>
+        <p style="font-size:.82rem;">Cada componente se caracteriza con un coeficiente de retención R (0–1): fracción de la masa original de ese componente que permanece en el retenido durante una etapa de concentración simple.</p>
+        <ul class="assumps">
+          <li><b>Proteína (R≈1.0):</b> retenida casi en su totalidad — la membrana de 10 kDa (10K NWCO) es muy inferior al tamaño de caseínas y proteínas de suero.</li>
+          <li><b>Grasa (R≈1.0):</b> los glóbulos grasos son órdenes de magnitud mayores al corte de la membrana — retención prácticamente total.</li>
+          <li><b>Lactosa (R≈0):</b> molécula pequeña (342 Da), pasa libremente — su % no cambia con el VCF, solo con diafiltración.</li>
+          <li><b>Cenizas / calcio (R≈0.35 por defecto):</b> el calcio se reparte entre la fracción coloidal ligada a la micela de caseína (se retiene con la proteína) y la fracción soluble (permea como la lactosa). Ajusta este valor si tienes datos de reparto de calcio de tu leche.</li>
+        </ul>
+      </fieldset>
+
+      <fieldset>
+        <legend>Balance de masa — concentración simple</legend>
+        <p class="formula" style="display:block;">VCF = Flujo alimentación / Flujo retenido
+%Proteína,retenido = %Proteína,alim × VCF × R_proteína
+masa_x,retenido = R_x × %x,alim/100 × Flujo_alim
+Flujo_permeado = Flujo_alim − Flujo_retenido</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Diafiltración de volumen constante</legend>
+        <p class="formula" style="display:block;">%x,final = %x,inicial × e^(−N × (1 − R_x))
+N = volúmenes de diafiltración = Agua añadida / Masa del retenido (constante)</p>
+        <p style="font-size:.8rem;">Válido para diafiltración continua de volumen constante (se añade agua/permeado a la misma tasa a la que se retira permeado, manteniendo el volumen del retenido constante mientras los solutos permeables se lavan).</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Conversión de unidades usada en Capacidad</legend>
+        <p class="formula" style="display:block;">1 galón US = 3.78541 L
+gpm = (kg/h ÷ densidad kg/L ÷ 3.78541) ÷ 60</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pendiente de validar antes de usar en el anteproyecto final</legend>
+        <ul class="assumps">
+          <li>Composición real de la leche de planta (proteína, grasa, lactosa, cenizas) — los valores por defecto son de referencia bibliográfica.</li>
+          <li>Flux real de leche en el equipo (prueba piloto) — el flux de leche suele ser menor que el de suero al mismo ΔP/TMP por mayor viscosidad y fouling; la capacidad de 20,000 kg/h del diseño original (para suero) no está garantizada para leche.</li>
+          <li>Reparto real de calcio coloidal/soluble de tu leche, si se requiere precisión en el balance de cenizas.</li>
+          <li>Verificar con MSS la capacidad real de la bomba de permeado (P2440) si el escenario con diafiltración se opera en continuo a plena capacidad de alimentación.</li>
+        </ul>
+      </fieldset>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Calculadora de apoyo para anteproyecto de leche UF — Lácteos Flores / INDAMEX. Los resultados son estimaciones de ingeniería preliminar; no sustituyen validación en planta.
+</footer>
+
+<script>
+// ---------- Utilidades ----------
+function fmt(n, dec){
+  if(n===null||n===undefined||isNaN(n)) return '—';
+  return Number(n).toLocaleString('es-MX',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function badge(status){
+  if(status==='ok') return '<span class="badge ok">Dentro de rango</span>';
+  if(status==='warn') return '<span class="badge warn">Cerca del límite</span>';
+  return '<span class="badge err">Excede el límite</span>';
+}
+
+// ---------- Navegación de pestañas ----------
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------- Mostrar/ocultar campos dependientes ----------
+document.getElementById('m1_modo').addEventListener('change', e=>{
+  const esProteina = e.target.value==='proteina';
+  document.getElementById('m1_campo_proteina').style.display = esProteina?'flex':'none';
+  document.getElementById('m1_campo_vcf').style.display = esProteina?'none':'flex';
+});
+document.getElementById('m3_modo').addEventListener('change', e=>{
+  const esReq = e.target.value==='requerida';
+  document.getElementById('m3_campo_objetivo').style.display = esReq?'flex':'none';
+  document.getElementById('m3_campo_disponible').style.display = esReq?'none':'flex';
+});
+
+// ---------- Estado compartido entre módulos ----------
+let ultimoResultado1 = null;
+let ultimoResultado2 = null;
+
+function actualizarSTyAgua(){
+  const p=parseFloat(document.getElementById('m1_prot').value)||0;
+  const g=parseFloat(document.getElementById('m1_grasa').value)||0;
+  const l=parseFloat(document.getElementById('m1_lact').value)||0;
+  const c=parseFloat(document.getElementById('m1_cen').value)||0;
+  const st=p+g+l+c;
+  document.getElementById('m1_st_agua').innerText =
+    `Sólidos totales calculados: ${fmt(st,2)}% · Agua: ${fmt(100-st,2)}%`;
+}
+['m1_prot','m1_grasa','m1_lact','m1_cen'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', actualizarSTyAgua);
+});
+actualizarSTyAgua();
+
+// ===================== MÓDULO 1: BALANCE DE MASA =====================
+function calcularModulo1(){
+  const Pf = parseFloat(document.getElementById('m1_prot').value)||0;
+  const Gf = parseFloat(document.getElementById('m1_grasa').value)||0;
+  const Lf = parseFloat(document.getElementById('m1_lact').value)||0;
+  const Af = parseFloat(document.getElementById('m1_cen').value)||0;
+  const Ff = parseFloat(document.getElementById('m1_flujo').value)||0;
+  const Rp = parseFloat(document.getElementById('m1_Rp').value);
+  const Rg = parseFloat(document.getElementById('m1_Rg').value);
+  const Rl = parseFloat(document.getElementById('m1_Rl').value);
+  const Ra = parseFloat(document.getElementById('m1_Ra').value);
+  const modo = document.getElementById('m1_modo').value;
+
+  let VCF;
+  if(modo==='proteina'){
+    const Pc = parseFloat(document.getElementById('m1_prot_obj').value)||0;
+    if(Pf<=0 || Rp<=0){ alert('Proteína en alimentación y R proteína deben ser mayores a 0.'); return; }
+    VCF = Pc/(Rp*Pf);
+  } else {
+    VCF = parseFloat(document.getElementById('m1_vcf_fijo').value)||1;
+  }
+  if(VCF<1){ alert('El VCF debe ser mayor o igual a 1.'); return; }
+
+  const C = Ff/VCF;              // masa retenido
+  const P = Ff-C;                // masa permeado
+
+  const masaProtFeed = Pf/100*Ff, masaGrasaFeed = Gf/100*Ff, masaLactFeed = Lf/100*Ff, masaCenFeed = Af/100*Ff;
+  const masaProtRet = Rp*masaProtFeed, masaGrasaRet = Rg*masaGrasaFeed, masaLactRet = Rl*masaLactFeed, masaCenRet = Ra*masaCenFeed;
+  const stRet = masaProtRet+masaGrasaRet+masaLactRet+masaCenRet;
+  const aguaRet = C-stRet;
+
+  const masaProtPerm = masaProtFeed-masaProtRet, masaGrasaPerm = masaGrasaFeed-masaGrasaRet,
+        masaLactPerm = masaLactFeed-masaLactRet, masaCenPerm = masaCenFeed-masaCenRet;
+  const aguaPerm = P-(masaProtPerm+masaGrasaPerm+masaLactPerm+masaCenPerm);
+
+  const pct = (masa,total)=> total>0 ? masa/total*100 : 0;
+
+  ultimoResultado1 = {
+    Ff, C, P, VCF,
+    protRet: pct(masaProtRet,C), grasaRet: pct(masaGrasaRet,C), lactRet: pct(masaLactRet,C), cenRet: pct(masaCenRet,C),
+    protPerm: pct(masaProtPerm,P), grasaPerm: pct(masaGrasaPerm,P), lactPerm: pct(masaLactPerm,P), cenPerm: pct(masaCenPerm,P),
+    Rl, Ra
+  };
+
+  document.getElementById('m1_resultados').innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><div class="v">${fmt(VCF,2)}x</div><div class="l">VCF</div></div>
+      <div class="kpi"><div class="v">${fmt(C,0)}</div><div class="l">Retenido (kg/h)</div></div>
+      <div class="kpi"><div class="v">${fmt(P,0)}</div><div class="l">Permeado (kg/h)</div></div>
+      <div class="kpi"><div class="v">${fmt(ultimoResultado1.protRet,2)}%</div><div class="l">Proteína en retenido</div></div>
+    </div>
+    <div class="flow"><b>Alimentación</b> ${fmt(Ff,0)} kg/h <span class="arrow">→ UF →</span> <b>Retenido</b> ${fmt(C,0)} kg/h + <b>Permeado</b> ${fmt(P,0)} kg/h</div>
+    <table>
+      <thead><tr><th>Componente</th><th class="num">% Alimentación</th><th class="num">% Retenido</th><th class="num">% Permeado</th></tr></thead>
+      <tbody>
+        <tr><td>Proteína</td><td class="num">${fmt(Pf,2)}</td><td class="num">${fmt(ultimoResultado1.protRet,2)}</td><td class="num">${fmt(ultimoResultado1.protPerm,2)}</td></tr>
+        <tr><td>Grasa</td><td class="num">${fmt(Gf,2)}</td><td class="num">${fmt(ultimoResultado1.grasaRet,2)}</td><td class="num">${fmt(ultimoResultado1.grasaPerm,2)}</td></tr>
+        <tr><td>Lactosa</td><td class="num">${fmt(Lf,2)}</td><td class="num">${fmt(ultimoResultado1.lactRet,2)}</td><td class="num">${fmt(ultimoResultado1.lactPerm,2)}</td></tr>
+        <tr><td>Cenizas</td><td class="num">${fmt(Af,2)}</td><td class="num">${fmt(ultimoResultado1.cenRet,2)}</td><td class="num">${fmt(ultimoResultado1.cenPerm,2)}</td></tr>
+        <tr><td>Sólidos totales</td><td class="num">${fmt(Pf+Gf+Lf+Af,2)}</td><td class="num">${fmt(pct(stRet,C),2)}</td><td class="num">${fmt(100-pct(aguaPerm,P),2)}</td></tr>
+        <tr><td>Agua</td><td class="num">${fmt(100-(Pf+Gf+Lf+Af),2)}</td><td class="num">${fmt(pct(aguaRet,C),2)}</td><td class="num">${fmt(pct(aguaPerm,P),2)}</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Si la lactosa en el retenido no bajó respecto a la alimentación, es esperado: la concentración simple no reduce % de lactosa. Usa la pestaña de Diafiltración si necesitas bajarla.</p>
+  `;
+}
+
+// ===================== MÓDULO 2: DIAFILTRACIÓN =====================
+function calcularModulo2(){
+  const C = parseFloat(document.getElementById('m2_masa').value)||0;
+  const Lc = parseFloat(document.getElementById('m2_lact').value)||0;
+  const Ac = parseFloat(document.getElementById('m2_cen').value)||0;
+  const Ra = parseFloat(document.getElementById('m2_Ra').value);
+  const LcObj = parseFloat(document.getElementById('m2_lact_obj').value)||0;
+
+  if(LcObj<=0 || LcObj>=Lc){ alert('La lactosa objetivo debe ser mayor a 0 y menor a la lactosa del retenido de entrada.'); return; }
+
+  const N = Math.log(Lc/LcObj); // R_lactosa = 0 por definición en este módulo
+  const aguaDilucion = N*C;
+  const permeadoEtapa = aguaDilucion; // balance de masa: volumen constante
+  const cenFinal = Ac*Math.exp(-N*(1-Ra));
+
+  ultimoResultado2 = { C, N, aguaDilucion, permeadoEtapa, LcObj, cenFinal };
+
+  document.getElementById('m2_resultados').innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><div class="v">${fmt(N,3)}</div><div class="l">Volúmenes de diafiltración (N)</div></div>
+      <div class="kpi"><div class="v">${fmt(aguaDilucion,0)}</div><div class="l">Agua de dilución (kg/h)</div></div>
+      <div class="kpi"><div class="v">${fmt(permeadoEtapa,0)}</div><div class="l">Permeado extra (kg/h)</div></div>
+      <div class="kpi"><div class="v">${fmt(C,0)}</div><div class="l">Producto final (kg/h)</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Componente</th><th class="num">% Antes de diafiltrar</th><th class="num">% Producto final</th></tr></thead>
+      <tbody>
+        <tr><td>Lactosa</td><td class="num">${fmt(Lc,2)}</td><td class="num">${fmt(LcObj,2)}</td></tr>
+        <tr><td>Cenizas</td><td class="num">${fmt(Ac,2)}</td><td class="num">${fmt(cenFinal,2)}</td></tr>
+        <tr><td>Proteína / Grasa</td><td class="num" colspan="2" style="text-align:center;">Sin cambio (R≈1, masa retenido constante)</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Modelo de diafiltración de volumen constante en continuo. Si se opera por lotes, el agua de dilución total requerida es la misma, pero el permeado no se suma instantáneamente al de la etapa de concentración — revisa la pestaña de Capacidad según cómo se vaya a operar.</p>
+  `;
+}
+
+// ===================== MÓDULO 3: ESTANDARIZACIÓN DE GRASA =====================
+function calcularModulo3(){
+  const VCF = parseFloat(document.getElementById('m3_vcf').value)||1;
+  const Rg = parseFloat(document.getElementById('m3_Rg').value);
+  const modo = document.getElementById('m3_modo').value;
+  let html='';
+
+  if(modo==='requerida'){
+    const Gobj = parseFloat(document.getElementById('m3_grasa_obj').value)||0;
+    const Greq = Gobj/(Rg*VCF);
+    html = `
+      <div class="kpis">
+        <div class="kpi"><div class="v">${fmt(Greq,3)}%</div><div class="l">Grasa requerida en alimentación</div></div>
+        <div class="kpi"><div class="v">${fmt(VCF,2)}x</div><div class="l">VCF usado</div></div>
+        <div class="kpi"><div class="v">${fmt(Gobj,2)}%</div><div class="l">Grasa objetivo en producto</div></div>
+      </div>
+      <p class="note">Estandariza la leche de entrada (descremado parcial o adición de crema) a ${fmt(Greq,3)}% de grasa antes de alimentar el UF para lograr ${fmt(Gobj,2)}% de grasa en el concentrado con este VCF.</p>
+    `;
+  } else {
+    const Gdisp = parseFloat(document.getElementById('m3_grasa_disp').value)||0;
+    const Gres = Rg*Gdisp*VCF;
+    html = `
+      <div class="kpis">
+        <div class="kpi"><div class="v">${fmt(Gres,3)}%</div><div class="l">Grasa resultante en concentrado</div></div>
+        <div class="kpi"><div class="v">${fmt(VCF,2)}x</div><div class="l">VCF usado</div></div>
+        <div class="kpi"><div class="v">${fmt(Gdisp,2)}%</div><div class="l">Grasa disponible en alimentación</div></div>
+      </div>
+      <p class="note">Con la leche disponible (${fmt(Gdisp,2)}% grasa) y este VCF, el concentrado saldrá con ${fmt(Gres,3)}% de grasa.</p>
+    `;
+  }
+  document.getElementById('m3_resultados').innerHTML = html;
+}
+
+// ===================== MÓDULO 4: CAPACIDAD DEL EQUIPO =====================
+function calcularModulo4(){
+  const feedKgH = parseFloat(document.getElementById('m4_feed').value)||0;
+  const rhoFeed = parseFloat(document.getElementById('m4_rho_feed').value)||1;
+  const permKgH = parseFloat(document.getElementById('m4_perm').value)||0;
+  const rhoPerm = parseFloat(document.getElementById('m4_rho_perm').value)||1;
+
+  const feedMin = parseFloat(document.getElementById('m4_feed_min').value)||0;
+  const feedMax = parseFloat(document.getElementById('m4_feed_max').value)||0;
+  const permMin = parseFloat(document.getElementById('m4_perm_min').value)||0;
+  const permMax = parseFloat(document.getElementById('m4_perm_max').value)||0;
+
+  const kgh_a_gpm = (kgh, rho) => (kgh/rho/3.78541)/60;
+
+  const feedGpm = kgh_a_gpm(feedKgH, rhoFeed);
+  const permGpm = kgh_a_gpm(permKgH, rhoPerm);
+
+  function evaluar(v, min, max){
+    if(v>max) return 'err';
+    if(v<min) return 'err';
+    if(v > max*0.9) return 'warn';
+    if(v < min*1.1) return 'warn';
+    return 'ok';
+  }
+  const estFeed = evaluar(feedGpm, feedMin, feedMax);
+  const estPerm = evaluar(permGpm, permMin, permMax);
+
+  document.getElementById('m4_resultados').innerHTML = `
+    <table>
+      <thead><tr><th>Flujo</th><th class="num">kg/h</th><th class="num">gpm</th><th>Rango de diseño</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td>Alimentación</td><td class="num">${fmt(feedKgH,0)}</td><td class="num">${fmt(feedGpm,1)}</td><td>${feedMin}–${feedMax} gpm</td><td>${badge(estFeed)}</td></tr>
+        <tr><td>Permeado</td><td class="num">${fmt(permKgH,0)}</td><td class="num">${fmt(permGpm,1)}</td><td>${permMin}–${permMax} gpm</td><td>${badge(estPerm)}</td></tr>
+      </tbody>
+    </table>
+    <p class="note">${(estFeed==='err'||estPerm==='err') ? 'Al menos un flujo queda fuera de los límites de diseño del equipo — ajusta el flujo de alimentación, replantea la operación (ej. diafiltración por lotes en vez de continua) o confirma con MSS si el equipo admite el punto de operación.' : 'Ambos flujos quedan dentro de los límites de diseño reportados en el SOP del equipo.'}</p>
+  `;
+}
+
+// ===================== Puentes entre módulos =====================
+function usarEnDiafiltracion(){
+  if(!ultimoResultado1){ alert('Primero calcula el Balance de masa.'); return; }
+  document.getElementById('m2_masa').value = ultimoResultado1.C.toFixed(0);
+  document.getElementById('m2_lact').value = ultimoResultado1.lactRet.toFixed(2);
+  document.getElementById('m2_cen').value = ultimoResultado1.cenRet.toFixed(2);
+  document.getElementById('m2_Ra').value = ultimoResultado1.Ra;
+  document.querySelector('nav.tabs button[data-tab="t2"]').click();
+}
+function usarEnGrasa(){
+  if(!ultimoResultado1){ alert('Primero calcula el Balance de masa.'); return; }
+  document.getElementById('m3_vcf').value = ultimoResultado1.VCF.toFixed(3);
+  document.querySelector('nav.tabs button[data-tab="t3"]').click();
+}
+function usarEnCapacidad(origen){
+  if(origen==='m1'){
+    if(!ultimoResultado1){ alert('Primero calcula el Balance de masa.'); return; }
+    document.getElementById('m4_feed').value = ultimoResultado1.Ff.toFixed(0);
+    document.getElementById('m4_perm').value = ultimoResultado1.P.toFixed(0);
+  } else if(origen==='m2'){
+    if(!ultimoResultado1 || !ultimoResultado2){ alert('Calcula primero Balance de masa y Diafiltración.'); return; }
+    document.getElementById('m4_feed').value = ultimoResultado1.Ff.toFixed(0);
+    document.getElementById('m4_perm').value = (ultimoResultado1.P + ultimoResultado2.permeadoEtapa).toFixed(0);
+  }
+  document.querySelector('nav.tabs button[data-tab="t4"]').click();
+}
+
+// Calcular todo una vez al cargar, con los valores por defecto
+window.addEventListener('load', ()=>{
+  calcularModulo1();
+  calcularModulo2();
+  calcularModulo3();
+  calcularModulo4();
+});
+
+// Service worker (PWA) — opcional, falla en silencio si no está servido por HTTPS/GitHub Pages
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>

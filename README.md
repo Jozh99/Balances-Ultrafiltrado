@@ -1,6 +1,6 @@
 # Calculadora de Ultrafiltración de Leche
 
-PWA para apoyar el anteproyecto de leche ultrafiltrada alta proteína / sin lactosa (tipo Lala 100), a desarrollar sobre el sistema UF existente en Lácteos Flores (MSS Project #180202, originalmente diseñado para suero dulce pasteurizado).
+PWA para apoyar el anteproyecto de leche ultrafiltrada alta proteína / sin lactosa (tipo Alpura PRO — línea Extra Proteína y Baja en Grasa), a desarrollar sobre el sistema UF existente en INDAMEX (MSS Project #180202, originalmente diseñado para suero dulce pasteurizado).
 
 Sin dependencias externas (HTML/CSS/JS puro) — funciona offline una vez instalada como PWA.
 

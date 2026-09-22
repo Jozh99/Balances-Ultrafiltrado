@@ -6,6 +6,8 @@
 <title>Calculadora UF Leche | Anteproyecto Ultrafiltración</title>
 <meta name="description" content="Calculadora de balance de masa, diafiltración, estandarización de grasa y capacidad de equipo para anteproyectos de leche ultrafiltrada.">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#0f3a5f">
 <style>
   :root{
@@ -187,10 +189,10 @@
       <h2>Balance de masa de concentración (UF)</h2>
       <div class="explic">
         <strong>Qué calcula:</strong> a partir de la composición de la leche de alimentación y de un objetivo de proteína (o de un VCF fijo), determina el factor de concentración volumétrica (VCF), y la composición y flujo del concentrado (retenido) y el permeado.
-        <span class="formula">VCF = %Proteína objetivo / (R_proteína × %Proteína alimentación)
-masa_x,retenido = R_x × (%x,alim / 100) × Flujo_alim
-masa_x,permeado = masa_x,alim − masa_x,retenido</span>
-        R_x = coeficiente de retención de membrana del componente x (1 = totalmente retenido, 0 = libremente permeable). Ver pestaña "Supuestos y fórmulas".
+        <span class="formula">VCF = (%Proteína objetivo / %Proteína alimentación)^(1 / R_proteína)
+%x,retenido = %x,alimentación × VCF^R_x
+masa_x,retenido = (%x,retenido / 100) × Flujo_retenido</span>
+        R_x = coeficiente de retención de membrana del componente x (1 = totalmente retenido, 0 = libremente permeable — su % no cambia con el VCF). Ver pestaña "Supuestos y fórmulas".
       </div>
 
       <fieldset>
@@ -202,7 +204,7 @@ masa_x,permeado = masa_x,alim − masa_x,retenido</span>
           </div>
           <div class="field">
             <label for="m1_grasa">Grasa (%)</label>
-            <input type="number" id="m1_grasa" value="0.63" step="0.01" min="0">
+            <input type="number" id="m1_grasa" value="0.31" step="0.01" min="0">
           </div>
           <div class="field">
             <label for="m1_lact">Lactosa (%)</label>
@@ -290,7 +292,7 @@ Agua de dilución = N × Masa del retenido
         <div class="grid">
           <div class="field">
             <label for="m2_masa">Masa del retenido (kg/h)</label>
-            <input type="number" id="m2_masa" value="12596" step="10" min="0">
+            <input type="number" id="m2_masa" value="12593" step="10" min="0">
           </div>
           <div class="field">
             <label for="m2_lact">Lactosa en el retenido (%)</label>
@@ -298,7 +300,7 @@ Agua de dilución = N × Masa del retenido
           </div>
           <div class="field">
             <label for="m2_cen">Cenizas en el retenido (%)</label>
-            <input type="number" id="m2_cen" value="0.75" step="0.01" min="0">
+            <input type="number" id="m2_cen" value="0.88" step="0.01" min="0">
           </div>
           <div class="field">
             <label for="m2_Ra">R cenizas</label>
@@ -333,8 +335,8 @@ Agua de dilución = N × Masa del retenido
       <h2>Estandarización de grasa de la leche de alimentación</h2>
       <div class="explic">
         <strong>Qué calcula:</strong> como la grasa se concentra con el mismo VCF que la proteína (ambas retenidas por la membrana), para lograr un % de grasa objetivo en el producto final hay que estandarizar la grasa de la leche de entrada — no sirve partir de leche descremada si el producto debe llevar grasa.
-        <span class="formula">%Grasa alimentación requerida = %Grasa objetivo en concentrado / (R_grasa × VCF)
-%Grasa resultante en concentrado = R_grasa × %Grasa alimentación × VCF</span>
+        <span class="formula">%Grasa alimentación requerida = %Grasa objetivo en concentrado / VCF^R_grasa
+%Grasa resultante en concentrado = %Grasa alimentación × VCF^R_grasa</span>
       </div>
 
       <fieldset>
@@ -357,11 +359,11 @@ Agua de dilución = N × Masa del retenido
           </div>
           <div class="field" id="m3_campo_objetivo">
             <label for="m3_grasa_obj">Grasa objetivo en concentrado (%)</label>
-            <input type="number" id="m3_grasa_obj" value="1.00" step="0.01" min="0">
+            <input type="number" id="m3_grasa_obj" value="0.50" step="0.01" min="0">
           </div>
           <div class="field" id="m3_campo_disponible" style="display:none;">
             <label for="m3_grasa_disp">Grasa disponible en leche de planta (%)</label>
-            <input type="number" id="m3_grasa_disp" value="0.63" step="0.01" min="0">
+            <input type="number" id="m3_grasa_disp" value="0.31" step="0.01" min="0">
           </div>
         </div>
       </fieldset>
@@ -402,7 +404,7 @@ gpm = (L/h ÷ 3.78541) ÷ 60</span>
           </div>
           <div class="field">
             <label for="m4_perm">Flujo de permeado total (kg/h)</label>
-            <input type="number" id="m4_perm" value="12379" step="100" min="0">
+            <input type="number" id="m4_perm" value="12385" step="100" min="0">
           </div>
           <div class="field">
             <label for="m4_rho_perm">Densidad permeado (kg/L)</label>
@@ -463,9 +465,10 @@ gpm = (L/h ÷ 3.78541) ÷ 60</span>
       <fieldset>
         <legend>Balance de masa — concentración simple</legend>
         <p class="formula" style="display:block;">VCF = Flujo alimentación / Flujo retenido
-%Proteína,retenido = %Proteína,alim × VCF × R_proteína
-masa_x,retenido = R_x × %x,alim/100 × Flujo_alim
-Flujo_permeado = Flujo_alim − Flujo_retenido</p>
+%x,retenido = %x,alimentación × VCF^R_x
+masa_x,retenido = (%x,retenido / 100) × Flujo_retenido
+Flujo_permeado = Flujo_alimentación − Flujo_retenido</p>
+        <p style="font-size:.8rem;">Se deriva de asumir que, para un componente con coeficiente de retención R_x constante, su concentración en el retenido varía con el VCF elevado a R_x. Con R_x=1 (totalmente retenido) la concentración crece proporcional al VCF; con R_x=0 (libremente permeable) la concentración no cambia con el VCF — solo la diafiltración la reduce.</p>
       </fieldset>
 
       <fieldset>
@@ -496,7 +499,7 @@ gpm = (kg/h ÷ densidad kg/L ÷ 3.78541) ÷ 60</p>
 </main>
 
 <footer>
-  Calculadora de apoyo para anteproyecto de leche UF — Lácteos Flores / INDAMEX. Los resultados son estimaciones de ingeniería preliminar; no sustituyen validación en planta.
+  Calculadora de apoyo para anteproyecto de leche UF — INDAMEX. Los resultados son estimaciones de ingeniería preliminar; no sustituyen validación en planta.
 </footer>
 
 <script>
@@ -568,7 +571,7 @@ function calcularModulo1(){
   if(modo==='proteina'){
     const Pc = parseFloat(document.getElementById('m1_prot_obj').value)||0;
     if(Pf<=0 || Rp<=0){ alert('Proteína en alimentación y R proteína deben ser mayores a 0.'); return; }
-    VCF = Pc/(Rp*Pf);
+    VCF = Math.pow(Pc/Pf, 1/Rp);
   } else {
     VCF = parseFloat(document.getElementById('m1_vcf_fijo').value)||1;
   }
@@ -577,8 +580,13 @@ function calcularModulo1(){
   const C = Ff/VCF;              // masa retenido
   const P = Ff-C;                // masa permeado
 
+  // %x,retenido = %x,alimentación × VCF^R_x  (relación general de concentración simple,
+  // válida para R_x entre 0 = libremente permeable y 1 = totalmente retenido)
+  const pctRet = (pf, R) => pf*Math.pow(VCF, R);
+  const protRetPct = pctRet(Pf,Rp), grasaRetPct = pctRet(Gf,Rg), lactRetPct = pctRet(Lf,Rl), cenRetPct = pctRet(Af,Ra);
+
   const masaProtFeed = Pf/100*Ff, masaGrasaFeed = Gf/100*Ff, masaLactFeed = Lf/100*Ff, masaCenFeed = Af/100*Ff;
-  const masaProtRet = Rp*masaProtFeed, masaGrasaRet = Rg*masaGrasaFeed, masaLactRet = Rl*masaLactFeed, masaCenRet = Ra*masaCenFeed;
+  const masaProtRet = protRetPct/100*C, masaGrasaRet = grasaRetPct/100*C, masaLactRet = lactRetPct/100*C, masaCenRet = cenRetPct/100*C;
   const stRet = masaProtRet+masaGrasaRet+masaLactRet+masaCenRet;
   const aguaRet = C-stRet;
 
@@ -663,7 +671,7 @@ function calcularModulo3(){
 
   if(modo==='requerida'){
     const Gobj = parseFloat(document.getElementById('m3_grasa_obj').value)||0;
-    const Greq = Gobj/(Rg*VCF);
+    const Greq = Gobj/Math.pow(VCF, Rg);
     html = `
       <div class="kpis">
         <div class="kpi"><div class="v">${fmt(Greq,3)}%</div><div class="l">Grasa requerida en alimentación</div></div>
@@ -674,7 +682,7 @@ function calcularModulo3(){
     `;
   } else {
     const Gdisp = parseFloat(document.getElementById('m3_grasa_disp').value)||0;
-    const Gres = Rg*Gdisp*VCF;
+    const Gres = Gdisp*Math.pow(VCF, Rg);
     html = `
       <div class="kpis">
         <div class="kpi"><div class="v">${fmt(Gres,3)}%</div><div class="l">Grasa resultante en concentrado</div></div>
